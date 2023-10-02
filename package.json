@@ -45,6 +45,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.13.14",
+    "@types/react-router-dom": "^5.3.3",
     "auto-changelog": "~2.2.1",
     "react-scripts": "^4.0.3"
   },
