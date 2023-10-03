@@ -15,6 +15,7 @@ const TheLayout = () => {
         const result = await api.validateToken();
         if(result.error === '') {
           setLoading(false);
+          
         } else {
           alert(result.error);
           history.push('/login');
@@ -23,7 +24,7 @@ const TheLayout = () => {
         history.push('/login');
       }
     }
-    checkLogin();
+    checkLogin();    
   }, []);
 
   return (
@@ -43,4 +44,4 @@ const TheLayout = () => {
   )
 }
 
-export default TheLayout
+export default TheLayout;
