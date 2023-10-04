@@ -14,6 +14,8 @@ const request = async (method, endpoint, params, token = null) => {
     case 'delete':
       body = JSON.stringify(params);
     break;
+    default:
+      break;
   }
   
   let headers = {'Content-Type': 'application/json'};
@@ -25,7 +27,7 @@ const request = async (method, endpoint, params, token = null) => {
   return json;
 }
 
-export default () => {
+const authentication = () => {
   return {
     getToken: () => {
       return localStorage.getItem('token');
@@ -42,3 +44,4 @@ export default () => {
     }
   };
 }
+export default authentication;

@@ -24,7 +24,7 @@ const TheLayout = () => {
       }
     }
     checkLogin();
-  }, []);
+  });
 
   return (
     <div className="c-app c-default-layout">

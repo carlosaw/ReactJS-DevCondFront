@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useHistory } from 'react-router-dom';
 import {
   CButton,
@@ -29,9 +28,10 @@ const Login = () => {
   const [loading, setLoading] = useState('');
 
   const handleLoginButton = async () => {
-    if(email && password) {
+    
+    if(email && password) {      
       setLoading(true);
-      const result = api.login(email, password);
+      const result = await api.login(email, password);
       setLoading(false);
       if(result.error === '') {
         localStorage.setItem('token', result.token);
