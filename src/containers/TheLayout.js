@@ -24,8 +24,10 @@ const TheLayout = () => {
         history.push('/login');
       }
     }
+
     checkLogin();
-  }, []);
+  });
+
 
   return (
     <div className="c-app c-default-layout">
