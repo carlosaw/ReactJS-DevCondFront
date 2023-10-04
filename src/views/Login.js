@@ -28,8 +28,7 @@ const Login = () => {
   const [loading, setLoading] = useState('');
 
   const handleLoginButton = async () => {
-    
-    if(email && password) {      
+    if(email && password) {
       setLoading(true);
       const result = await api.login(email, password);
       setLoading(false);

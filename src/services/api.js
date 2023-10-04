@@ -18,16 +18,16 @@ const request = async (method, endpoint, params, token = null) => {
     break;
   }
   
-  let headers = {'Content-Type':'application/json'};
+  let headers = {'Content-Type': 'application/json'};
   if(token) {
-    headers.Authorization = `Bearer ${token}`;
+    headers.Authorization = `Bearer ${token}`
   }
   let req = await fetch(fullUrl, {method, headers, body});
   let json = await req.json();
   return json;
 }
 
-const authentication = () => {
+const authe = () => {
   return {
     getToken: () => {
       return localStorage.getItem('token');
@@ -37,10 +37,11 @@ const authentication = () => {
       let json = await request('post', '/auth/validate', {}, token);
       return json;
     },
+
     login: async (email, password) => {
       let json = await request('post', '/auth/login', {email, password});
       return json;
     }
   };
 }
-export default authentication;
+export default authe;
