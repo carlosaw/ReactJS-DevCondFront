@@ -24,14 +24,15 @@ const TheLayout = () => {
         history.push('/login');
       }
     }
-    checkLogin();    
+    checkLogin(); 
+  // eslint-disable-next-line   
   }, []);
 
   return (
     <div className="c-app c-default-layout">
       {!loading &&
-      <>
-        <TheSidebar/>        
+        <>
+          <TheSidebar/>        
           <div className="c-wrapper">
             <div className="c-body">
               <TheContent/>

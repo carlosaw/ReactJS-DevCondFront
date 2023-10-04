@@ -30,7 +30,7 @@ const Login = () => {
   const handleLoginButton = async () => {
     if(email && password) {
       setLoading(true);
-      const result = api.login(email, password);
+      const result = await api.login(email, password);
       setLoading(false);
       if(result.error === '') {
         localStorage.setItem('token', result.token);
@@ -81,6 +81,7 @@ const Login = () => {
                           color="primary" 
                           className="px-4"
                           onClick={handleLoginButton}
+                          disabled={loading}
                         >
                           {loading ? 'Carregando' : 'Entrar'}
                         </CButton>
