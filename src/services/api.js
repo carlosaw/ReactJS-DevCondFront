@@ -15,12 +15,12 @@ const request = async (method, endpoint, params, token = null) => {
       body = JSON.stringify(params);
     break;
     default:
-      break;
+    break;
   }
   
-  let headers = {'Content-Type': 'application/json'};
+  let headers = {'Content-Type':'application/json'};
   if(token) {
-    headers.Authorization = `Bearer ${token}`
+    headers.Authorization = `Bearer ${token}`;
   }
   let req = await fetch(fullUrl, {method, headers, body});
   let json = await req.json();
@@ -37,7 +37,6 @@ const authentication = () => {
       let json = await request('post', '/auth/validate', {}, token);
       return json;
     },
-
     login: async (email, password) => {
       let json = await request('post', '/auth/login', {email, password});
       return json;
