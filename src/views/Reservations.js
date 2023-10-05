@@ -33,8 +33,10 @@ export default () => {
 
   // Monta as colunas da lista.
   const fields = [
-    {label: 'Título', key: 'title'},
-    {label: 'Ações', key: 'actions', _style:{width: '1px'}}
+    {label: 'Unidade', key: 'name_unit', sorter: false},
+    {label: 'Área', key: 'name_area', sorter: false},
+    {label: 'Data da reserva', key: 'reservation_date'},
+    {label: 'Ações', key: 'actions', _style:{width: '1px'}, sorter: false, filter: false}
   ];
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export default () => {
 
   const getList = async () => {
     setLoading(true);
-    const result = await api.getDocuments();
+    const result = await api.getReservations();
     setLoading(false);
     if(result.error === '') {
       setList(result.list);
@@ -118,19 +120,15 @@ export default () => {
     }
   }
 
-  const handleDownloadButton = (index) => {
-    window.open(list[index]['fileurl']);
-  }
-
   return (
     <>
       <CRow>
         <CCol>
-          <h2>Documentos</h2>
+          <h2>Reservas</h2>
           <CCard>
             <CCardHeader>
               <CButton color="primary" onClick={handleNewButton}>
-                <CIcon name='cil-check' /> Novo Documento
+                <CIcon name='cil-check' /> Nova Reserva
               </CButton>
             </CCardHeader>
             <CCardBody>
@@ -139,18 +137,22 @@ export default () => {
                 fields={fields}
                 loading={loading}
                 noItemsViewSlot=" "
+                columnFilter
+                sorter
                 hover
                 striped
                 bordered
                 pagination
                 itemsPerPage={2}
                 scopedSlots={{
-                  'actions': (item, index)=>(
+                  'reservation_date': (item) => (
+                    <td>
+                      {item.reservation_date_formatted}
+                    </td>
+                  ),
+                  'actions': (_item, index)=>(
                     <td>
                       <CButtonGroup>
-                        <CButton color='success' onClick={()=>handleDownloadButton(index)}>
-                          <CIcon name="cil-cloud-download" />
-                        </CButton>
                         <CButton color="info" onClick={()=>handleEditButton(index)}>Editar</CButton>
                         <CButton color="danger" onClick={()=>handleRemoveButton(index)}>Excluir</CButton>
                       </CButtonGroup>
@@ -164,15 +166,15 @@ export default () => {
       </CRow>
 
       <CModal show={showModal} onClose={handleCloseModal}>
-        <CModalHeader closeButton>{modalId === '' ? 'Novo' : 'Editar' } Documento</CModalHeader>
+        <CModalHeader closeButton>{modalId === '' ? 'Novo' : 'Editar' } Reserva</CModalHeader>
 
         <CModalBody>          
           <CFormGroup>
-            <CLabel htmlFor="modal-title">Título do documento</CLabel>
+            <CLabel htmlFor="modal-title">Título da Reserva</CLabel>
             <CInput 
               type="text"
               id="modal-title"
-              placeholder="Digite um título para o documento"
+              placeholder="Digite um título para a reserva"
               value={modalTitleField}
               onChange={e=>setModalTitleField(e.target.value)}
               disabled={modalLoading}
