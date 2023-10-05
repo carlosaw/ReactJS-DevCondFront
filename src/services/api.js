@@ -67,6 +67,35 @@ export default () => {
       let token = localStorage.getItem('token');
       let json = await request('delete', `/wall/${id}`, {}, token);
       return json;
-    }
+    },
+
+    getDocuments: async () => {
+      let token = localStorage.getItem('token');
+      let json = await request('get', '/docs', {}, token);
+      return json;
+    },
+    
+    addDocument: async (data) => {
+      let token = localStorage.getItem('token');
+      let formData = new FormData();
+      formData.append('title', data.title);
+      if(data.file) {
+        formData.append('file', data.file);
+      }
+      let req = await fetch(`${baseUrl}/docs`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+      let json = await req.json();
+      return json;
+    },
+
+    updateDocument: async (id, data) => {
+      
+    },
+
   };
 }
