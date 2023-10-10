@@ -132,6 +132,13 @@ export default () => {
       let json = await request('get', '/areas', {}, token);
       return json;
     },
+
+    addReservation: async (data) => {
+    
+    },
+    updateReservation: async (id, data) => {
+    
+    },
     
   };
 }
