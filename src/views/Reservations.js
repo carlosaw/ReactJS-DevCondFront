@@ -28,8 +28,6 @@ export default () => {
   const [list, setList] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
-  const [modalTitleField, setModalTitleField] = useState('');
-  const [modalFileField, setModalFileField] = useState('');
   const [modalId, setModalId] = useState('');
   const [modalUnitList, setModalUnitList] = useState([]);
   const [modalAreaList, setModalAreaList] = useState([]);
@@ -83,8 +81,17 @@ export default () => {
 
   const handleEditButton = (index) => {
     setModalId(list[index]['id']);
-    setModalTitleField(list[index]['title']);
-    //setModalBodyField(list[index]['body']);
+    setModalUnitId(list[index]['id_unit']);
+    setModalAreaId(list[index]['id_area']);
+    setModalDateField(list[index]['reservation_date']);
+    setShowModal(true);
+  }
+
+  const handleNewButton = () => {
+    setModalId('');
+    setModalUnitId(modalUnitList[0]['id']);
+    setModalAreaId(modalAreaList[0]['id']);
+    setModalDateField('');
     setShowModal(true);
   }
 
@@ -99,35 +106,19 @@ export default () => {
     }
   }
 
-  const handleNewButton = () => {
-    setModalId('');
-    setModalTitleField('');
-    setModalFileField('');
-    setShowModal(true);
-  }
-
   const handleModalSave = async () => {
-    if(modalTitleField) {
+    if(modalUnitId && modalAreaId && modalDateField) {
       setModalLoading(true);
       let result;
       let data = {
-        title: modalTitleField
+        id_unit: modalUnitId,
+        id_area: modalAreaId,
+        reservation_date: modalDateField
       };
-
       if(modalId === '') {
-        if(modalFileField) {
-          data.file = modalFileField;
-          result = await api.addDocument(data);
-        } else {
-          alert("Selecione o arquivo!");
-          setModalLoading(false);
-          return;
-        }        
+        result = await api.addReservation(data);
       } else {
-        if(modalFileField) {
-          data.file = modalFileField;
-        }
-        result = await api.updateDocument(modalId, data);
+        result = await api.updateReservation(modalId, data);        
       }
 
       setModalLoading(false);
@@ -209,11 +200,11 @@ export default () => {
               custom
               onChange={e=>setModalUnitId(e.target.value)}
             >
-              {modalUnitList.map((item, index)=>(
+              {modalUnitList.map((item, index)=>(                
                 <option
                   key={index}
                   value={item.id}
-                  onChange={e=>setModalAreaId(e.target.value)}
+                  selected={item.id === modalUnitId}
                 >{item.name}</option>
               ))}
             </CSelect>
@@ -224,11 +215,13 @@ export default () => {
             <CSelect
               id='modal-area'
               custom
+              onChange={e=>setModalAreaId(e.target.value)}
             >
-              {modalAreaList.map((item, index)=>(
+              {modalAreaList.map((item, index)=>(                
                 <option
                   key={index}
                   value={item.id}
+                  selected={item.id === modalAreaId}
                 >{item.title}</option>
               ))}
             </CSelect>
@@ -239,7 +232,8 @@ export default () => {
             <CInput 
               type="text"
               id="modal-date"
-              value={modalTitleField}
+              value={modalDateField}
+              // {item.reservation_date_formatted}
               onChange={e=>setModalDateField(e.target.value)}
               disabled={modalLoading}
             />
