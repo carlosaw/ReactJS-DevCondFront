@@ -18,6 +18,7 @@ const TheSidebar = () => {
           src='/homelogo.png' 
           className='mt-2 mb-3 ml-auto mr-auto'
           width="70%"
+          alt=''
         />
         <CCreateElement
           items={navigation}

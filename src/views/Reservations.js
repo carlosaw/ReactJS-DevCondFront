@@ -15,6 +15,7 @@ import {
   CFormGroup,
   CLabel,
   CInput,
+  CSelect,
 } from '@coreui/react';
 
 import CIcon from '@coreui/icons-react';
@@ -30,6 +31,11 @@ export default () => {
   const [modalTitleField, setModalTitleField] = useState('');
   const [modalFileField, setModalFileField] = useState('');
   const [modalId, setModalId] = useState('');
+  const [modalUnitList, setModalUnitList] = useState([]);
+  const [modalAreaList, setModalAreaList] = useState([]);
+  const [modalUnitId, setModalUnitId] = useState('');
+  const [modalAreaId, setModalAreaId] = useState('');
+  const [modalDateField, setModalDateField] = useState('');
 
   // Monta as colunas da lista.
   const fields = [
@@ -41,6 +47,8 @@ export default () => {
 
   useEffect(() => {
     getList();
+    getUnitList();
+    getAreaList();
   // eslint-disable-next-line
   }, []);
 
@@ -52,6 +60,20 @@ export default () => {
       setList(result.list);
     } else {
       alert(result.error);
+    }
+  }
+
+  const getUnitList = async () => {
+    const result = await api.getUnits();
+    if(result.error === '') {
+      setModalUnitList(result.list);
+    }
+  }
+
+  const getAreaList = async () => {
+    const result = await api.getAreas();
+    if(result.error === '') {
+      setModalAreaList(result.list);
     }
   }
 
@@ -127,7 +149,11 @@ export default () => {
           <h2>Reservas</h2>
           <CCard>
             <CCardHeader>
-              <CButton color="primary" onClick={handleNewButton}>
+              <CButton 
+                color="primary" 
+                onClick={handleNewButton}
+                disabled={modalUnitList.length === 0 || modalAreaList.length === 0}
+              >
                 <CIcon name='cil-check' /> Nova Reserva
               </CButton>
             </CCardHeader>
@@ -143,7 +169,7 @@ export default () => {
                 striped
                 bordered
                 pagination
-                itemsPerPage={2}
+                itemsPerPage={5}
                 scopedSlots={{
                   'reservation_date': (item) => (
                     <td>
@@ -153,7 +179,13 @@ export default () => {
                   'actions': (_item, index)=>(
                     <td>
                       <CButtonGroup>
-                        <CButton color="info" onClick={()=>handleEditButton(index)}>Editar</CButton>
+                        <CButton 
+                          color="info" 
+                          onClick={()=>handleEditButton(index)}
+                          disabled={modalUnitList.length === 0 || modalAreaList.length === 0}
+                        >
+                          Editar
+                        </CButton>
                         <CButton color="danger" onClick={()=>handleRemoveButton(index)}>Excluir</CButton>
                       </CButtonGroup>
                     </td>
@@ -168,28 +200,51 @@ export default () => {
       <CModal show={showModal} onClose={handleCloseModal}>
         <CModalHeader closeButton>{modalId === '' ? 'Novo' : 'Editar' } Reserva</CModalHeader>
 
-        <CModalBody>          
+        <CModalBody>  
+
           <CFormGroup>
-            <CLabel htmlFor="modal-title">Título da Reserva</CLabel>
+            <CLabel htmlFor='modal-unit'>Unidade</CLabel>
+            <CSelect
+              id='modal-unit'
+              custom
+              onChange={e=>setModalUnitId(e.target.value)}
+            >
+              {modalUnitList.map((item, index)=>(
+                <option
+                  key={index}
+                  value={item.id}
+                  onChange={e=>setModalAreaId(e.target.value)}
+                >{item.name}</option>
+              ))}
+            </CSelect>
+          </CFormGroup>
+
+          <CFormGroup>
+            <CLabel htmlFor='modal-area'>Área</CLabel>
+            <CSelect
+              id='modal-area'
+              custom
+            >
+              {modalAreaList.map((item, index)=>(
+                <option
+                  key={index}
+                  value={item.id}
+                >{item.title}</option>
+              ))}
+            </CSelect>
+          </CFormGroup>
+
+          <CFormGroup>
+            <CLabel htmlFor="modal-date">Data da Reserva</CLabel>
             <CInput 
               type="text"
-              id="modal-title"
-              placeholder="Digite um título para a reserva"
+              id="modal-date"
               value={modalTitleField}
-              onChange={e=>setModalTitleField(e.target.value)}
+              onChange={e=>setModalDateField(e.target.value)}
               disabled={modalLoading}
             />
           </CFormGroup>
-          <CFormGroup>
-            <CLabel htmlFor="modal-file">Arquivo (pdf)</CLabel>
-            <CInput 
-              type="file"
-              id='modal-file'
-              name='file'
-              placeholder='Escolha um arquivo'
-              onChange={e=>setModalFileField(e.target.files[0])}
-            />
-          </CFormGroup>
+          
         </CModalBody>
 
         <CModalFooter>
