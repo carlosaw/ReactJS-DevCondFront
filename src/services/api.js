@@ -48,6 +48,7 @@ export default () => {
       return json;
     },
 
+    // Mural de avisos
     getWall: async () => {
       let token = localStorage.getItem('token');
       let json = await request('get', '/walls', {}, token);
@@ -69,12 +70,12 @@ export default () => {
       return json;
     },
 
+    // Documentos
     getDocuments: async () => {
       let token = localStorage.getItem('token');
       let json = await request('get', '/docs', {}, token);
       return json;
-    },
-    
+    },    
     addDocument: async (data) => {
       let token = localStorage.getItem('token');
       let formData = new FormData();
@@ -92,7 +93,6 @@ export default () => {
       let json = await req.json();
       return json;
     },
-
     updateDocument: async (id, data) => {
       let token = localStorage.getItem('token');
       let formData = new FormData();
@@ -116,17 +116,21 @@ export default () => {
       return json;
     },
 
+    // Reservas
     getReservations: async() => {
       let token = localStorage.getItem('token');
       let json = await request('get', '/reservations', {}, token);
       return json;
     },
 
+    // Pegar Unidades
     getUnits: async () => {
       let token = localStorage.getItem('token');
       let json = await request('get', '/units', {}, token);
       return json;
     },
+
+    // Pegar Áreas
     getAreas: async () => {
       let token = localStorage.getItem('token');
       let json = await request('get', '/areas', {}, token);
@@ -134,10 +138,31 @@ export default () => {
     }, 
 
     addReservation: async (data) => {
-    
+      let token = localStorage.getItem('token');
+      let json = await request('post', '/reservations', data, token);
+      return json;
     },
     updateReservation: async (id, data) => {
-    
+      let token = localStorage.getItem('token');
+      let json = await request('put', `/reservation/${id}`, data, token);
+      return json;
     },
+    removeReservation: async (id) => {
+      let token = localStorage.getItem('token');
+      let json = await request('delete', `/reservation/${id}`, {}, token);
+      return json;
+    },
+
+    // Ocorrências
+    getWarnings: async () => {
+      let token = localStorage.getItem('token');
+      let json = await request('get', '/warnings', {}, token);
+      return json;
+    },
+    updateWarning: async (id) => {
+      let token = localStorage.getItem('token');
+      let json = await request('put', `/warning/${id}`, {}, token);
+      return json;
+    }
   };
 }

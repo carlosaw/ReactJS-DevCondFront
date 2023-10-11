@@ -79,7 +79,9 @@ export default () => {
     setShowModal(false);
   }
 
-  const handleEditButton = (index) => {
+  const handleEditButton = (id) => {
+    //console.log("INDEX", index);
+    let index = list.findIndex(v=>v.id===id);
     setModalId(list[index]['id']);
     setModalUnitId(list[index]['id_unit']);
     setModalAreaId(list[index]['id_area']);
@@ -97,7 +99,7 @@ export default () => {
 
   const handleRemoveButton = async (index) => {
     if(window.confirm('Tem certeza que deseja excluir?')) {
-      const result = await api.removeDocument(list[index]['id']);
+      const result = await api.removeReservation(list[index]['id']);
       if(result.error === '') {
         getList();
       } else {
@@ -160,19 +162,19 @@ export default () => {
                 striped
                 bordered
                 pagination
-                itemsPerPage={5}
+                itemsPerPage={9}
                 scopedSlots={{
                   'reservation_date': (item) => (
                     <td>
                       {item.reservation_date_formatted}
                     </td>
                   ),
-                  'actions': (_item, index)=>(
+                  'actions': (item, index)=>(
                     <td>
                       <CButtonGroup>
                         <CButton 
                           color="info" 
-                          onClick={()=>handleEditButton(index)}
+                          onClick={()=>handleEditButton(item.id)}
                           disabled={modalUnitList.length === 0 || modalAreaList.length === 0}
                         >
                           Editar
@@ -199,12 +201,12 @@ export default () => {
               id='modal-unit'
               custom
               onChange={e=>setModalUnitId(e.target.value)}
+              value={modalUnitId}
             >
               {modalUnitList.map((item, index)=>(                
                 <option
                   key={index}
                   value={item.id}
-                  selected={item.id === modalUnitId}
                 >{item.name}</option>
               ))}
             </CSelect>
@@ -216,12 +218,12 @@ export default () => {
               id='modal-area'
               custom
               onChange={e=>setModalAreaId(e.target.value)}
+              value={modalAreaId}
             >
               {modalAreaList.map((item, index)=>(                
                 <option
                   key={index}
                   value={item.id}
-                  selected={item.id === modalAreaId}
                 >{item.title}</option>
               ))}
             </CSelect>
