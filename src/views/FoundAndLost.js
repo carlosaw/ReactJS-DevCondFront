@@ -18,17 +18,16 @@ export default () => {
   const api = useApi();
 
   const [loading, setLoading] = useState(true);
-  const [list, setList] = useState([]);
-  const [photoList, setPhotoList] = useState([]);
-  const [photoListIndex, setPhotoListIndex] = useState(0);
+  const [list, setList] = useState([]); 
+  const [photoUrl, setPhotoUrl] = useState('');
 
   // Monta as colunas da lista.
   const fields = [
-    {label: 'Resolvido', key: 'status', filter: false},
-    {label: 'Unidade', key: 'name_unit', sorter: false},
-    {label: 'Título', key: 'title', sorter: false},
-    {label: 'Fotos', key: 'photos', sorter: false, filter: false},
-    {label: 'Data', key: 'datecreated'},
+    {key: 'status', label: 'Recuperado', filter: false},
+    {key: 'where', label: 'Local encontrado', sorter: false},
+    {key: 'description', label: 'Descrição', sorter: false},
+    {key: 'photo', label: 'Foto', sorter: false, filter: false},
+    {key: 'datecreated', label: 'Data'},
   ];
 
   useEffect(() => {
@@ -38,7 +37,7 @@ export default () => {
 
   const getList = async () => {
     setLoading(true);
-    const result = await api.getWarnings();
+    const result = await api.getFoundAndLost();
     setLoading(false);
     if(result.error === '') {
       setList(result.list);
@@ -49,7 +48,7 @@ export default () => {
 
   const handleSwitchClick = async (item) => {
     setLoading(true);
-    const result = await api.updateWarning(item.id);
+    const result = await api.updateFoundAndLost(item.id);
     setLoading(false);
     if(result.error === '') {
       getList();
@@ -58,16 +57,15 @@ export default () => {
     }
   }
 
-  const showLightbox = (photos) => {
-    setPhotoListIndex(0);
-    setPhotoList(photos);
+  const showLightbox = (url) => {
+    setPhotoUrl(url);
   }
 
   return (
     <>
       <CRow>
         <CCol>
-          <h2>Ocorrências</h2>
+          <h2>Achados e Perdidos</h2>
           <CCard>            
             <CCardBody>
               <CDataTable
@@ -83,14 +81,14 @@ export default () => {
                 pagination
                 itemsPerPage={9}
                 scopedSlots={{
-                  'photos': (item) => (
+                  'photo': (item) => (
                     <td>
-                      {item.photos.length > 0 &&
+                      {item.photo &&
                         <CButton 
                           color='success' 
-                          onClick={()=>showLightbox(item.photos)}
+                          onClick={()=>showLightbox(item.photo)}
                         >
-                          {item.photos.length} foto{item.photos.length!==1?'s':''}
+                          Ver foto
                         </CButton>
                       }
                     </td>
@@ -104,7 +102,7 @@ export default () => {
                     <td>
                       <CSwitch
                         color='success'
-                        checked={item.status === 'RESOLVED'}
+                        checked={item.status === 'recovered'}
                         onChange={(e)=>handleSwitchClick(item)}
                       />
                     </td>
@@ -116,22 +114,10 @@ export default () => {
         </CCol>
       </CRow>
 
-      {photoList.length > 0 &&
+      {photoUrl &&
         <Lightbox 
-          mainSrc={photoList[photoListIndex]}
-          nextSrc={photoList[photoListIndex + 1]}
-          prevSrc={photoList[photoListIndex - 1]}
-          onCloseRequest={() => setPhotoList([])}
-          onMovePrevRequest={() => {
-            if(photoList[photoListIndex - 1] !== undefined) {
-              setPhotoListIndex(photoListIndex - 1);
-            }
-          }}
-          onMoveNextRequest={() => {
-            if(photoList[photoListIndex + 1] !== undefined) {
-              setPhotoListIndex(photoListIndex + 1);
-            }
-          }}
+          mainSrc={photoUrl}
+          onCloseRequest={() => setPhotoUrl('')}
           reactModalStyle={{overlay: {zIndex: 9999}}}
         />
       }

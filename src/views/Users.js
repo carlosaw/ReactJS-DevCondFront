@@ -37,41 +37,25 @@ export default () => {
 
   // Monta as colunas da lista.
   const fields = [
-    {label: 'Unidade', key: 'name_unit', sorter: false},
-    {label: 'Área', key: 'name_area', sorter: false},
-    {label: 'Data da reserva', key: 'reservation_date'},
+    {label: 'Nome', key: 'name'},
+    {label: 'Email', key: 'email'},
+    {label: 'CPF', key: 'cpf'},
     {label: 'Ações', key: 'actions', _style:{width: '1px'}, sorter: false, filter: false}
   ];
 
   useEffect(() => {
     getList();
-    getUnitList();
-    getAreaList();
   // eslint-disable-next-line
   }, []);
 
   const getList = async () => {
     setLoading(true);
-    const result = await api.getReservations();
+    const result = await api.getUsers();
     setLoading(false);
     if(result.error === '') {
       setList(result.list);
     } else {
       alert(result.error);
-    }
-  }
-
-  const getUnitList = async () => {
-    const result = await api.getUnits();
-    if(result.error === '') {
-      setModalUnitList(result.list);
-    }
-  }
-
-  const getAreaList = async () => {
-    const result = await api.getAreas();
-    if(result.error === '') {
-      setModalAreaList(result.list);
     }
   }
 
@@ -139,7 +123,7 @@ export default () => {
     <>
       <CRow>
         <CCol>
-          <h2>Reservas</h2>
+          <h2>Usuários</h2>
           <CCard>
             <CCardHeader>
               <CButton 
