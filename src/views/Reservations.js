@@ -97,9 +97,9 @@ export default () => {
     setShowModal(true);
   }
 
-  const handleRemoveButton = async (index) => {
+  const handleRemoveButton = async (id) => {
     if(window.confirm('Tem certeza que deseja excluir?')) {
-      const result = await api.removeReservation(list[index]['id']);
+      const result = await api.removeReservation(id);
       if(result.error === '') {
         getList();
       } else {
@@ -169,7 +169,7 @@ export default () => {
                       {item.reservation_date_formatted}
                     </td>
                   ),
-                  'actions': (item, index)=>(
+                  'actions': (item)=>(
                     <td>
                       <CButtonGroup>
                         <CButton 
@@ -179,7 +179,7 @@ export default () => {
                         >
                           Editar
                         </CButton>
-                        <CButton color="danger" onClick={()=>handleRemoveButton(index)}>Excluir</CButton>
+                        <CButton color="danger" onClick={()=>handleRemoveButton(item.id)}>Excluir</CButton>
                       </CButtonGroup>
                     </td>
                   )

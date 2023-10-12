@@ -57,16 +57,16 @@ export default () => {
     setShowModal(false);
   }
 
-  const handleEditButton = (index) => {
+  const handleEditButton = (id) => {
+    let index = list.findIndex(v=>v.id===id);
     setModalId(list[index]['id']);
     setModalTitleField(list[index]['title']);
-    //setModalBodyField(list[index]['body']);
     setShowModal(true);
   }
 
-  const handleRemoveButton = async (index) => {
+  const handleRemoveButton = async (id) => {
     if(window.confirm('Tem certeza que deseja excluir?')) {
-      const result = await api.removeDocument(list[index]['id']);
+      const result = await api.removeDocument(id);
       if(result.error === '') {
         getList();
       } else {
@@ -118,7 +118,8 @@ export default () => {
     }
   }
 
-  const handleDownloadButton = (index) => {
+  const handleDownloadButton = (id) => {
+    let index = list.findIndex(v=>v.id===id);
     window.open(list[index]['fileurl']);
   }
 
@@ -145,14 +146,14 @@ export default () => {
                 pagination
                 itemsPerPage={2}
                 scopedSlots={{
-                  'actions': (item, index)=>(
+                  'actions': (item)=>(
                     <td>
                       <CButtonGroup>
-                        <CButton color='success' onClick={()=>handleDownloadButton(index)}>
+                        <CButton color='success' onClick={()=>handleDownloadButton(item.id)}>
                           <CIcon name="cil-cloud-download" />
                         </CButton>
-                        <CButton color="info" onClick={()=>handleEditButton(index)}>Editar</CButton>
-                        <CButton color="danger" onClick={()=>handleRemoveButton(index)}>Excluir</CButton>
+                        <CButton color="info" onClick={()=>handleEditButton(item.id)}>Editar</CButton>
+                        <CButton color="danger" onClick={()=>handleRemoveButton(item.id)}>Excluir</CButton>
                       </CButtonGroup>
                     </td>
                   )

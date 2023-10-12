@@ -15,7 +15,6 @@ import {
   CFormGroup,
   CLabel,
   CInput,
-  CSelect,
 } from '@coreui/react';
 
 import CIcon from '@coreui/icons-react';
@@ -28,12 +27,13 @@ export default () => {
   const [list, setList] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
+
   const [modalId, setModalId] = useState('');
-  const [modalUnitList, setModalUnitList] = useState([]);
-  const [modalAreaList, setModalAreaList] = useState([]);
-  const [modalUnitId, setModalUnitId] = useState('');
-  const [modalAreaId, setModalAreaId] = useState('');
-  const [modalDateField, setModalDateField] = useState('');
+  const [modalNameField, setModalNameField] = useState('');
+  const [modalEmailField, setModalEmailField] = useState('');
+  const [modalCpfField, setModalCpfField] = useState('');
+  const [modalPass1Field, setModalPass1Field] = useState('');
+  const [modalPass2Field, setModalPass2Field] = useState('');
 
   // Monta as colunas da lista.
   const fields = [
@@ -67,23 +67,27 @@ export default () => {
     //console.log("INDEX", index);
     let index = list.findIndex(v=>v.id===id);
     setModalId(list[index]['id']);
-    setModalUnitId(list[index]['id_unit']);
-    setModalAreaId(list[index]['id_area']);
-    setModalDateField(list[index]['reservation_date']);
+    setModalNameField(list[index]['name']);
+    setModalEmailField(list[index]['email']);
+    setModalCpfField(list[index]['cpf']);
+    setModalPass1Field('');
+    setModalPass2Field('');
     setShowModal(true);
   }
 
   const handleNewButton = () => {
     setModalId('');
-    setModalUnitId(modalUnitList[0]['id']);
-    setModalAreaId(modalAreaList[0]['id']);
-    setModalDateField('');
+    setModalNameField('');
+    setModalEmailField('');
+    setModalCpfField('');
+    setModalPass1Field('');
+    setModalPass2Field('');
     setShowModal(true);
   }
 
-  const handleRemoveButton = async (index) => {
+  const handleRemoveButton = async (id) => {
     if(window.confirm('Tem certeza que deseja excluir?')) {
-      const result = await api.removeReservation(list[index]['id']);
+      const result = await api.removeUser(id);
       if(result.error === '') {
         getList();
       } else {
@@ -93,18 +97,26 @@ export default () => {
   }
 
   const handleModalSave = async () => {
-    if(modalUnitId && modalAreaId && modalDateField) {
+    if(modalNameField && modalEmailField && modalCpfField) {
       setModalLoading(true);
       let result;
       let data = {
-        id_unit: modalUnitId,
-        id_area: modalAreaId,
-        reservation_date: modalDateField
+        name: modalNameField,
+        email: modalEmailField,
+        cpf: modalCpfField,
       };
+      if(modalPass1Field) {
+        if(modalPass1Field === modalPass2Field) {
+          data.password = modalPass1Field;
+        } else {
+          alert("Senhas não batem!");
+          setModalLoading(false);
+        }
+      }
       if(modalId === '') {
-        result = await api.addReservation(data);
+        result = await api.addUser(data);
       } else {
-        result = await api.updateReservation(modalId, data);        
+        result = await api.updateUser(modalId, data);        
       }
 
       setModalLoading(false);
@@ -129,9 +141,8 @@ export default () => {
               <CButton 
                 color="primary" 
                 onClick={handleNewButton}
-                disabled={modalUnitList.length === 0 || modalAreaList.length === 0}
               >
-                <CIcon name='cil-check' /> Nova Reserva
+                <CIcon name='cil-check' /> Novo Usuário
               </CButton>
             </CCardHeader>
             <CCardBody>
@@ -148,22 +159,17 @@ export default () => {
                 pagination
                 itemsPerPage={9}
                 scopedSlots={{
-                  'reservation_date': (item) => (
-                    <td>
-                      {item.reservation_date_formatted}
-                    </td>
-                  ),
                   'actions': (item, index)=>(
                     <td>
                       <CButtonGroup>
                         <CButton 
                           color="info" 
                           onClick={()=>handleEditButton(item.id)}
-                          disabled={modalUnitList.length === 0 || modalAreaList.length === 0}
-                        >
-                          Editar
-                        </CButton>
-                        <CButton color="danger" onClick={()=>handleRemoveButton(index)}>Excluir</CButton>
+                        >Editar</CButton>
+                        <CButton 
+                          color="danger" 
+                          onClick={()=>handleRemoveButton(item.id)}
+                        >Excluir</CButton>
                       </CButtonGroup>
                     </td>
                   )
@@ -175,51 +181,60 @@ export default () => {
       </CRow>
 
       <CModal show={showModal} onClose={handleCloseModal}>
-        <CModalHeader closeButton>{modalId === '' ? 'Novo' : 'Editar' } Reserva</CModalHeader>
+        <CModalHeader closeButton>{modalId === '' ? 'Novo' : 'Editar' } Usuário</CModalHeader>
 
         <CModalBody>  
 
           <CFormGroup>
-            <CLabel htmlFor='modal-unit'>Unidade</CLabel>
-            <CSelect
-              id='modal-unit'
-              custom
-              onChange={e=>setModalUnitId(e.target.value)}
-              value={modalUnitId}
-            >
-              {modalUnitList.map((item, index)=>(                
-                <option
-                  key={index}
-                  value={item.id}
-                >{item.name}</option>
-              ))}
-            </CSelect>
-          </CFormGroup>
-
-          <CFormGroup>
-            <CLabel htmlFor='modal-area'>Área</CLabel>
-            <CSelect
-              id='modal-area'
-              custom
-              onChange={e=>setModalAreaId(e.target.value)}
-              value={modalAreaId}
-            >
-              {modalAreaList.map((item, index)=>(                
-                <option
-                  key={index}
-                  value={item.id}
-                >{item.title}</option>
-              ))}
-            </CSelect>
-          </CFormGroup>
-
-          <CFormGroup>
-            <CLabel htmlFor="modal-date">Data da Reserva</CLabel>
+            <CLabel htmlFor="modal-name">Nome do usuário</CLabel>
             <CInput 
               type="text"
-              id="modal-date"
-              value={modalDateField}
-              onChange={e=>setModalDateField(e.target.value)}
+              id="modal-name"
+              value={modalNameField}
+              onChange={e=>setModalNameField(e.target.value)}
+              disabled={modalLoading}
+            />
+          </CFormGroup>
+          <CFormGroup>
+            <CLabel htmlFor="modal-email">E-mail do usuário</CLabel>
+            <CInput 
+              type="email"
+              id="modal-email"
+              value={modalEmailField}
+              onChange={e=>setModalEmailField(e.target.value)}
+              disabled={modalLoading}
+            />
+          </CFormGroup>
+          <CFormGroup>
+            <CLabel htmlFor="modal-cpf">CPF do usuário</CLabel>
+            <CInput 
+              type="text"
+              id="modal-cpf"
+              placeholder='(Somente números)'
+              value={modalCpfField}
+              onChange={e=>setModalCpfField(e.target.value)}
+              disabled={modalLoading}
+            />
+          </CFormGroup>
+          <CFormGroup>
+            <CLabel htmlFor="modal-pass1">Nova Senha</CLabel>
+            <CInput 
+              type="password"
+              id="modal-pass1"
+              placeholder='Digite uma nova senha para o usuário'
+              value={modalPass1Field}
+              onChange={e=>setModalPass1Field(e.target.value)}
+              disabled={modalLoading}
+            />
+          </CFormGroup>
+          <CFormGroup>
+            <CLabel htmlFor="modal-pass2">Nova senha (Confirmação)</CLabel>
+            <CInput 
+              type="password"
+              id="modal-pass2"
+              placeholder='Confirme a nova senha para o usuário'
+              value={modalPass2Field}
+              onChange={e=>setModalPass2Field(e.target.value)}
               disabled={modalLoading}
             />
           </CFormGroup>
