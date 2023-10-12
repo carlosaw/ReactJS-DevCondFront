@@ -15,7 +15,6 @@ import {
   CFormGroup,
   CLabel,
   CInput,
-  CSelect,
   CSwitch,
   CInputCheckbox
 } from '@coreui/react';
@@ -39,21 +38,14 @@ export default () => {
   const [modalStartTimeField, setModalStartTimeField] = useState('');
   const [modalEndTimeField, setModalEndTimeField] = useState('');
 
-  const [modalFileField, setModalFileField] = useState([]);
-  const [modalUnitList, setModalUnitList] = useState([]);
-  const [modalAreaList, setModalAreaList] = useState([]);
-  const [modalUnitId, setModalUnitId] = useState('');
-  const [modalAreaId, setModalAreaId] = useState('');
-  const [modalDateField, setModalDateField] = useState('');
-
   // Monta as colunas da lista.
   const fields = [
-    {label: 'Ativo', key: 'allowed', sorter: false},
-    {label: 'Capa', key: 'cover', sorter: false},
+    {label: 'Ativo', key: 'allowed', filter: false, sorter: false},
+    {label: 'Capa', key: 'cover', filter: false, sorter: false},
     {label: 'Título', key: 'title'},
     {label: 'Dias de funcionamento', key: 'days'},
-    {label: 'Horário de início', key: 'start_time'},
-    {label: 'Horário de fim', key: 'end_time'},
+    {label: 'Horário de início', key: 'start_time', filter: false},
+    {label: 'Horário de fim', key: 'end_time', filter: false},
     {label: 'Ações', key: 'actions', _style:{width: '1px'}, sorter: false, filter: false}
   ];
 
@@ -81,9 +73,12 @@ export default () => {
     //console.log("INDEX", index);
     let index = list.findIndex(v=>v.id===id);
     setModalId(list[index]['id']);
-    setModalUnitId(list[index]['id_unit']);
-    setModalAreaId(list[index]['id_area']);
-    setModalDateField(list[index]['reservation_date']);
+    setModalAllowedField(list[index]['allowed']);
+    setModalTitleField(list[index]['title']);
+    setModalCoverField('');
+    setModalDaysField(list[index]['days'].split(','));
+    setModalStartTimeField(list[index]['start_time']);
+    setModalEndTimeField(list[index]['end_time']);
     setShowModal(true);
   }
 
@@ -100,7 +95,7 @@ export default () => {
 
   const handleRemoveButton = async (id) => {
     if(window.confirm('Tem certeza que deseja excluir?')) {
-      const result = await api.removeReservation(id);
+      const result = await api.removeArea(id);
       if(result.error === '') {
         getList();
       } else {
@@ -110,18 +105,24 @@ export default () => {
   }
 
   const handleModalSave = async () => {
-    if(modalUnitId && modalAreaId && modalDateField) {
+    if(modalTitleField && modalStartTimeField && modalEndTimeField) {
       setModalLoading(true);
       let result;
       let data = {
-        id_unit: modalUnitId,
-        id_area: modalAreaId,
-        reservation_date: modalDateField
+        allowed: modalAllowedField,
+        title: modalTitleField,
+        days: modalDaysField.join(','),
+        start_time: modalStartTimeField,
+        end_time: modalEndTimeField
       };
+      if(modalCoverField) {
+        data.cover = modalCoverField;
+      }
+
       if(modalId === '') {
-        result = await api.addReservation(data);
+        result = await api.addArea(data);
       } else {
-        result = await api.updateReservation(modalId, data);        
+        result = await api.updateArea(modalId, data);        
       }
 
       setModalLoading(false);
@@ -136,8 +137,15 @@ export default () => {
     }
   }
 
-  const handleSwitchClick = () => {
-
+  const handleSwitchClick = async (item) => {
+    setLoading(true);
+    const result = await api.updateAreaAllowed(item.id);
+    setLoading(false);
+    if(result.error === '') {
+      getList();
+    } else {
+      alert(result.error);
+    }
   }
 
   const handleModalSwitchClick = () => {
@@ -154,6 +162,7 @@ export default () => {
     }
     setModalDaysField(days);
   }
+
   return (
     <>
       <CRow>
@@ -239,6 +248,17 @@ export default () => {
               color="success"
               checked={modalAllowedField}
               onChange={handleModalSwitchClick}
+            />
+          </CFormGroup>
+
+          <CFormGroup>
+            <CLabel htmlFor="modal-title">Título</CLabel>
+            <CInput 
+              type="text"
+              id="modal-title"
+              name="title"
+              value={modalTitleField}
+              onChange={(e)=>setModalTitleField(e.target.value)}
             />
           </CFormGroup>
 

@@ -205,7 +205,6 @@ export default () => {
       let json = await request('delete', `/area/${id}`, {}, token);
       return json;
     },
-
     addArea: async (data) => {
       let token = localStorage.getItem('token');
       let formData = new FormData();
@@ -241,6 +240,13 @@ export default () => {
     updateAreaAllowed: async (id) => {
       let token = localStorage.getItem('token');
       let json = await request('put', `/area/${id}/allowed`, {}, token);
+      return json;
+    },
+
+    // Unidades
+    searchUser: async (query) => {
+      let token = localStorage.getItem('token');
+      let json = await request('get', `/users/search`, {q: query}, token);
       return json;
     }
   };
