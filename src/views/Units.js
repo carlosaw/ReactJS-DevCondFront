@@ -38,12 +38,6 @@ export default () => {
   const [modalOwnerList, setModalOwnerList] = useState([]);
   const [modalOwnerField, setModalOwnerField] = useState(null);
 
-  const [modalUnitList, setModalUnitList] = useState([]);
-  const [modalAreaList, setModalAreaList] = useState([]);
-  const [modalUnitId, setModalUnitId] = useState('');
-  const [modalAreaId, setModalAreaId] = useState('');
-  const [modalDateField, setModalDateField] = useState('');
-
   // Monta as colunas da lista.
   const fields = [
     {label: 'Unidade', key: 'name', sorter: false},
@@ -61,6 +55,7 @@ export default () => {
       clearTimeout(timer);
       timer = setTimeout(searchUser, 1500);
     }
+    // eslint-disable-next-line
   }, [modalOwnerSearchField]);
 
   const searchUser = async () => {
@@ -93,20 +88,32 @@ export default () => {
     //console.log("INDEX", index);
     let index = list.findIndex(v=>v.id===id);
     setModalId(list[index]['id']);
-    setModalUnitId(list[index]['id_unit']);
-    setModalAreaId(list[index]['id_area']);
-    setModalDateField(list[index]['reservation_date']);
+    setModalNameField(list[index]['name']);
+    setModalOwnerList([]);
+    setModalOwnerSearchField('');
+    if(list[index]['name_owner']) {
+      setModalOwnerField({
+        name: list[index]['name_owner'],
+        id: list[index]['id_owner']
+      });
+    } else {
+      setModalOwnerField(null);
+    }    
     setShowModal(true);
   }
 
   const handleNewButton = () => {
     setModalId('');
+    setModalNameField('');
+    setModalOwnerField(null);
+    setModalOwnerList([]);
+    setModalOwnerSearchField('');
     setShowModal(true);
   }
 
   const handleRemoveButton = async (id) => {
     if(window.confirm('Tem certeza que deseja excluir?')) {
-      const result = await api.removeReservation(id);
+      const result = await api.removeUnit(id);
       if(result.error === '') {
         getList();
       } else {
@@ -116,18 +123,17 @@ export default () => {
   }
 
   const handleModalSave = async () => {
-    if(modalUnitId && modalAreaId && modalDateField) {
+    if(modalNameField) {
       setModalLoading(true);
       let result;
       let data = {
-        id_unit: modalUnitId,
-        id_area: modalAreaId,
-        reservation_date: modalDateField
+        name: modalNameField,
+        id_owner: modalOwnerField.id
       };
       if(modalId === '') {
-        result = await api.addReservation(data);
+        result = await api.addUnit(data);
       } else {
-        result = await api.updateReservation(modalId, data);        
+        result = await api.updateUnit(modalId, data);        
       }
 
       setModalLoading(false);
@@ -143,7 +149,7 @@ export default () => {
   }
 
   const selectModalOwnerField = (id) => {
-    let item = modalOwnerList.find(item => item.id == id);
+    let item = modalOwnerList.find(item => item.id === id);
     setModalOwnerField(item);
     setModalOwnerList([]);
     setModalOwnerSearchField('');
@@ -185,6 +191,7 @@ export default () => {
                   'actions': (item)=>(
                     <td>
                       <CButtonGroup>
+                      <CButton color="success" onClick={null}>Detalhes</CButton>
                         <CButton color="info" onClick={()=>handleEditButton(item.id)}>Editar</CButton>
                         <CButton color="danger" onClick={()=>handleRemoveButton(item.id)}>Excluir</CButton>
                       </CButtonGroup>
